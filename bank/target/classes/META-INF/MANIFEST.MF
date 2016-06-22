@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Built-By: mraniy
+Build-Jdk: 1.7.0_45
+Main-Class: com.kata.bank.demo.Ihm
+Created-By: Maven Integration for Eclipse
+
