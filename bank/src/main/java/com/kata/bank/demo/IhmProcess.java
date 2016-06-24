@@ -1,13 +1,17 @@
 package com.kata.bank.demo;
 
+import java.awt.Color;
 import java.math.BigDecimal;
 
-import com.kata.bank.HandleAccountImpl;
-import com.kata.bank.IHandleAccount;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+
 import com.kata.bank.Exception.AmountTooBigForWithdrawalException;
 import com.kata.bank.Exception.MinimumDepositException;
 import com.kata.bank.Exception.NotEnoughMoneyException;
 import com.kata.bank.bean.Account;
+import com.kata.bank.service.HandleAccountImpl;
+import com.kata.bank.service.IHandleAccount;
 
 public class IhmProcess {
 
@@ -16,6 +20,8 @@ public class IhmProcess {
 	private Account account;
 
 	private Ihm ihm;
+	
+	private boolean firstExecution=false;
 
 	public IhmProcess(Account account, Ihm ihm) {
 		super();
@@ -27,40 +33,73 @@ public class IhmProcess {
 	public void handleSaveMoney(String amount) {
 
 		try {
+			// calling the service saving the money
 			handleAccount.saveMoney(account, new BigDecimal(amount));
+			// a little success message
+			showLabelMessage(ihm.getLabelMessage(), "Money Saved successfully", Color.GREEN);
+			// updating the balance
 			ihm.getLabelBalance().setText(
 					new StringBuffer(" Balance: ").append(
 							account.getBalance().toString()).toString());
-			updateOperations();
+
 		} catch (MinimumDepositException e1) {
-			ihm.getLabelError().setText(e1.getMessage());
+			// the minimum déposit is not respected
+			showLabelMessage(ihm.getLabelMessage(), e1.getMessage(), Color.RED);
 		} catch (NumberFormatException e2) {
-			ihm.getLabelError().setText("you have to fill a number");
+			// no number filled so , raise the exception
+			showLabelMessage(ihm.getLabelMessage(), "you have to fill a number", Color.RED);
 		}
 
 	}
 
 	public void handleRetrieveMoney(String amount) {
 		try {
+			// calling the service retrieve the money
 			handleAccount.retrieveMoney(account, new BigDecimal(amount));
+			// a little success message
+			showLabelMessage(ihm.getLabelMessage(), "Money Retrieved successfully", Color.GREEN);
+			//updating the balance
 			ihm.getLabelBalance().setText(
 					new StringBuffer(" Balance: ").append(
 							account.getBalance().toString()).toString());
-			updateOperations();
+		
+
 		} catch (AmountTooBigForWithdrawalException e) {
-			ihm.getLabelError().setText(e.getMessage());
+			// amount to big for withdrawal
+			showLabelMessage(ihm.getLabelMessage(), e.getMessage(), Color.RED);
 		} catch (NotEnoughMoneyException e) {
-			ihm.getLabelError().setText(e.getMessage());
+			// not enough money to be withdrawn
+			showLabelMessage(ihm.getLabelMessage(), e.getMessage(), Color.RED);
 		} catch (NumberFormatException e2) {
-			ihm.getLabelError().setText("you have to fill a number");
+			// no number filled so , raise the exception
+			showLabelMessage(ihm.getLabelMessage(),"you have to fill a number", Color.RED);
 		}
 	}
-
-	private void updateOperations() {
+	
+	public void handleShowOperations() {
+		// calling the service handling the operation and updating the ihm model
+		account.setListOperations(handleAccount.getOperations(account));
+		// initializing the data of the table
 		OperationModele operationModele = new OperationModele(account.getListOperations());
 		ihm.getTableOperations().setModel(operationModele);
-		ihm.getConteneur().add(ihm.getTableOperations()); 
+		//créating a scroll pane with the data if it's the first execution
+		if(!firstExecution) {
+			firstExecution=true;
+			ihm.setScrollPane(new JScrollPane(ihm.getTableOperations()));
+		}
+		// adding the scroll
+		ihm.getConteneur().add(ihm.getScrollPane());
 	}
+	
+	private void showLabelMessage(JLabel labelMessage, String message, Color color) {
+		
+		labelMessage.setForeground(color);
+		labelMessage.setText(message);
+
+		
+	}
+
+
 	
 
 

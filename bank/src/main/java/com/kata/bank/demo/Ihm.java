@@ -20,10 +20,16 @@ public class Ihm extends JFrame implements ActionListener {
 	private IhmProcess ihmProcess;
 	
 	private OperationModele operationModele;
+	
+	private JScrollPane scrollPane;
 
 	/**
 	 * 
 	 */
+	
+	private static final String OPERATIONVISIBLE="show operations";
+	
+	private static final String OPERATIONINVISIBLE="hide operations";
 	private static final long serialVersionUID = -1651065932278819277L;
 
 	private JTable tableOperations = null;
@@ -34,8 +40,10 @@ public class Ihm extends JFrame implements ActionListener {
 	private JButton buttonSaveMoney = new JButton("save money");
 
 	private JButton buttonRetrieveMoney = new JButton("retrieve money");
+	
+	private JButton buttonShowOperations = new JButton(OPERATIONVISIBLE);
 
-	private JLabel labelError = new JLabel();
+	private JLabel labelMessageUser = new JLabel();
 
 	private JTextField textSaveMoney = new JTextField("");
 	private JTextField textRetrieveMoney = new JTextField("");
@@ -72,12 +80,12 @@ public class Ihm extends JFrame implements ActionListener {
 		this.buttonRetrieveMoney = buttonRetrieveMoney;
 	}
 
-	public JLabel getLabelError() {
-		return labelError;
+	public JLabel getLabelMessage() {
+		return labelMessageUser;
 	}
 
-	public void setLabelError(JLabel labelError) {
-		this.labelError = labelError;
+	public void setLabelMessage(JLabel labelError) {
+		this.labelMessageUser = labelError;
 	}
 
 	public JTextField getTextSaveMoney() {
@@ -95,11 +103,31 @@ public class Ihm extends JFrame implements ActionListener {
 	public void setTextRetrieveMoney(JTextField textRetrieveMoney) {
 		this.textRetrieveMoney = textRetrieveMoney;
 	}
+	public JTable getTableOperations() {
+		return tableOperations;
+	}
+
+	public void setTableOperations(JTable tableOperations) {
+		this.tableOperations = tableOperations;
+	}
+
+	public JScrollPane getScrollPane() {
+		return scrollPane;
+	}
+
+	public void setScrollPane(JScrollPane scrollPane) {
+		this.scrollPane = scrollPane;
+	}
+	
 
 	public Ihm(Account account) {
+		tableOperations= new JTable(operationModele);
+		// instanciation of the adapter ihm process (separation of concerns)
 		ihmProcess = new IhmProcess(account, this);
+		// set the text of the balance
 		labelBalance.setText(new StringBuffer(" Balance: ").append(
 				account.getBalance()).toString());
+		// set the title of the frame
 		setTitle(new StringBuffer("Hello ").append(account.getFirstname())
 				.append(" ").append(account.getLastName())
 				.append(" , this is you simple cash management application.")
@@ -108,20 +136,27 @@ public class Ihm extends JFrame implements ActionListener {
 		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// setting the layout and the listners
 		conteneur.setLayout(new GridLayout(4, 2));
 		conteneur.add(buttonSaveMoney);
 		buttonSaveMoney.addActionListener(this);
 		conteneur.add(textSaveMoney);
 		buttonRetrieveMoney.addActionListener(this);
+		buttonShowOperations.addActionListener(this);
+		// adding elements into the container
 		conteneur.add(buttonRetrieveMoney);
 		conteneur.add(textRetrieveMoney);
 		conteneur.add(labelBalance);
-		conteneur.add(labelError);
+		conteneur.add(labelMessageUser);
+		conteneur.add(buttonShowOperations);
+		
 		setVisible(true);
 		setContentPane(conteneur);
-		tableOperations= new JTable(operationModele);
-		conteneur.add(tableOperations);
+		
+		
 	}
+	
+	
 
 	public static void main(String[] args) {
 		Account account = new Account("test", "test", new BigDecimal(0));
@@ -132,21 +167,27 @@ public class Ihm extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if (source == buttonSaveMoney) {
+			// call handle save money in the adapter
 			ihmProcess.handleSaveMoney(textSaveMoney.getText());
 		} else if (source == buttonRetrieveMoney) {
+			// call handle retrieve money
 			ihmProcess.handleRetrieveMoney(textRetrieveMoney.getText());
+		} else if(source==buttonShowOperations) {
+			// toggling the tables of operations
+			if(OPERATIONVISIBLE.equals(buttonShowOperations.getText())) {
+				tableOperations.setVisible(true);
+				// show operations
+				ihmProcess.handleShowOperations();
+				buttonShowOperations.setText(OPERATIONINVISIBLE);	
+			} else if(OPERATIONINVISIBLE.equals(buttonShowOperations.getText())){
+				tableOperations.setVisible(false);
+				buttonShowOperations.setText(OPERATIONVISIBLE);	
+			}
 		}
 
 	}
 
-	public JTable getTableOperations() {
-		return tableOperations;
-	}
 
-	public void setTableOperations(JTable tableOperations) {
-		this.tableOperations = tableOperations;
-	}
-	
 	
 
 }

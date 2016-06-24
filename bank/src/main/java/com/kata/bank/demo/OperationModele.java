@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import com.kata.bank.bean.Operation;
+import com.kata.bank.utils.DateUtils;
 
 public class OperationModele extends AbstractTableModel{
 	
@@ -27,6 +28,13 @@ public class OperationModele extends AbstractTableModel{
 	public OperationModele(List<Operation> operations) {
 		super();
 		this.operations = operations;
+	}
+	
+	
+	
+
+	public String getColumnName(int column) {
+	    return entetes[column];
 	}
 
 	public int getRowCount() {
@@ -49,7 +57,7 @@ public class OperationModele extends AbstractTableModel{
 
 		case 1:
 
-			return operations.get(rowIndex).getDate();
+			return  DateUtils.fromDateToString(operations.get(rowIndex).getDate(), "yyyy-MM-dd HH:mm") ;
 
 		case 2:
 
@@ -70,7 +78,7 @@ public class OperationModele extends AbstractTableModel{
 		switch (columnIndex) {
 			case 0:return String.class;
 			case 1:
-				return Date.class;
+				return String.class;
 	
 			case 2:
 				return BigDecimal.class;
